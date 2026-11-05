@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>4Wheels Admin</title><link rel="stylesheet" href="/admin.css"></head>
+<body><header><a href="/" class="brand">4WHEELS <small>ADMIN PANEL</small></a><a href="/">← View website</a></header>
+<main>
+<section class="login card" id="loginBox"><h1>Admin login</h1><p>Sign in to manage booking and partner enquiries.</p><form id="loginForm"><label>Username<input name="username" required autocomplete="username" value="admin"></label><label>Password<input name="password" type="password" required autocomplete="current-password"></label><button>Sign in</button><div id="loginMsg" class="msg"></div></form></section>
+<section id="dashboard" hidden><div class="topline"><div><span class="eyebrow">4WHEELS CONTROL ROOM</span><h1>Dashboard</h1></div><button class="secondary" id="logout">Log out</button></div>
+<div class="stats" id="stats"></div>
+<div class="tabs"><button class="tab active" data-tab="bookings">Bookings</button><button class="tab" data-tab="partners">Car partners</button><button class="tab" data-tab="cars">Fleet</button></div>
+<div id="tableArea" class="card"></div>
+<section class="card add-car" id="addCarBox" hidden><h2>Add a car</h2><form id="addCarForm" class="add-grid">
+<label>Car name<input name="name" required placeholder="e.g. Hyundai Creta"></label><label>Category<input name="category" required placeholder="SUV"></label><label>Seats<input name="seats" type="number" value="5"></label><label>Transmission<input name="transmission" value="Manual"></label><label>Fuel<input name="fuel" value="Petrol"></label><label>Self-drive price / day<input name="selfDrivePrice" type="number" min="0" value="0"></label><label>With-driver price / day<input name="withDriverPrice" type="number" min="0" value="0"></label><label>Image URL<input name="imageUrl" placeholder="https://..."></label><label class="wide">Description<input name="description"></label><button>Add car</button></form><div id="carMsg" class="msg"></div></section>
+</section></main><script src="/admin.js"></script></body></html>

@@ -1,0 +1,13 @@
+{
+ "expo":{
+  "name":"4Wheels Admin",
+  "slug":"4wheels-admin",
+  "version":"1.0.0",
+  "orientation":"portrait",
+  "userInterfaceStyle":"light",
+  "splash":{"backgroundColor":"#111111"},
+  "android":{"package":"com.fourwheels.admin"},
+  "ios":{"bundleIdentifier":"com.fourwheels.admin"},
+  "plugins":[]
+ }
+}
