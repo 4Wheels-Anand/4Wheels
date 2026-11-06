@@ -13,6 +13,13 @@ const db = new Database(path.join(__dirname, "4wheels.sqlite"));
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 
+// ADD-ON 1: ADMIN LOGIN + OTP
+const ADMINS = {
+  "4wheelsAnand": process.env.ADMIN_ANAND_,
+  "4wheelsShashank": process.env.ADMIN_SHASHANK_,
+  "4wheelsSanu": process.env.ADMIN_SANU_,
+};
+let otpStore = {};
 db.exec(`
 CREATE TABLE IF NOT EXISTS cars (
  id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, category TEXT NOT NULL,
@@ -188,6 +195,47 @@ app.patch("/api/admin/cars/:id",adminOnly,(req,res)=>{
  .run(clean(c.name,100),clean(c.category,60),Number(c.seats)||5,clean(c.transmission,30),clean(c.fuel,30),
  Math.max(0,Number(c.selfDrivePrice)||0),Math.max(0,Number(c.withDriverPrice)||0),clean(c.imageUrl,500),clean(c.description,300),Number(req.params.id));
  res.json({ok:r.changes>0});
+});
+// ADD-ON 2: BOOKING LOCK
+app.patch("/api/admin/bookings/:id", adminOnly, (req,res)=>{
+  const b = db.prepare("SELECT * FROM bookings WHERE id=?").get(req.params.id);
+  if(!b) return res.status(404).json({error:"Booking not found"});
+  if(b.status !== 'NEW' && b.status !== 'PENDING' && b.status !== ''){
+    return res.status(403).json({error:"🔒 LOCKED - Already " + b.status});
+  }
+  let who = req.session.adminUser === "4wheelsShashank" ? "Shashank" : req.session.adminUser === "4wheelsSanu" ? "Sanu Pal" : "Boss Anand";
+  let newStatus = req.body.status + " by " + who;
+  db.prepare("UPDATE bookings SET status=? WHERE id=?").run(newStatus, req.params.id);
+  res.json({ok:true});
+});
+
+// ADD-ON 3: OTP - 9140518693
+app.post("/api/admin/forgot-password", async (req,res)=>{
+  let phone = String(req.body.phone).replace(/\D/g,'').slice(-10);
+  if(phone !== "9140518693") return res.status(403).json({error:"This number is not registered as Admin"});
+  let otp = Math.floor(100000 + Math.random()*900000);
+  otpStore[phone] = {otp, time: Date.now()};
+  console.log(`\n🔑 OTP for ${phone} : ${otp}\n`);
+  res.json({ok:true, message:"OTP sent successfully"});
+});
+app.post("/api/admin/reset-password", (req,res)=>{
+  let phone = String(req.body.phone).replace(/\D/g,'').slice(-10);
+  let saved = otpStore[phone];
+  if(!saved) return res.status(400).json({error:"Please request OTP first"});
+  if(Date.now() - saved.time > 5*60*1000) return res.status(400).json({error:"OTP Expired"});
+  if(String(saved.otp) !== String(req.body.otp)) return res.status(400).json({error:"Invalid OTP"});
+  ADMINS["4wheelsAnand"] = req.body.newPassword;
+  delete otpStore[phone];
+  res.json({ok:true, message:"Password changed successfully"});
+});
+app.post("/api/admin/login", (req,res)=>{
+  const {username, password} = req.body;
+  if(ADMINS[username] && ADMINS[username] === password){
+    req.session.isAdmin = true;
+    req.session.adminUser = username;
+    return res.json({ok:true});
+  }
+  return res.status(401).json({error:"Wrong Username or Password"});
 });
 app.use(express.static(path.join(__dirname,"public")));
 app.get("*",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
