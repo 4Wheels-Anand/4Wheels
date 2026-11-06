@@ -240,3 +240,21 @@ app.post("/api/admin/login", (req,res)=>{
 app.use(express.static(path.join(__dirname,"public")));
 app.get("*",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
 app.listen(PORT,()=>console.log(`4Wheels API + website listening on port ${PORT}`));
+// --- ALAG ADMIN LOGIN ---
+const ADMIN_USERS = {
+  "4wheelsAnand": process.env.ADMIN_ANAND || "Anand914051",
+  "4wheelsShashank": process.env.ADMIN_SHASHANK || "Shashank914051",
+  "4wheelsSanu": process.env.ADMIN_SANU || "Sanu914051"
+};
+
+app.get('/admin', (req, res) => {
+  res.sendFile(__dirname + '/admin.html');
+});
+
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  if (ADMIN_USERS[username] && ADMIN_USERS[username] === password) {
+    return res.json({ success: true, user: username });
+  }
+  return res.json({ success: false });
+});

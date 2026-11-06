@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>4Wheels Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial;background:#111;color:white;text-align:center;padding:20px}
+.box{background:#222;padding:20px;border-radius:10px;max-width:350px;margin:auto}
+input{width:90%;padding:12px;margin:8px;border-radius:5px;border:none}
+button{width:95%;padding:12px;background:#ffcc00;font-weight:bold;border:none;border-radius:5px;cursor:pointer}
+#dashboard{display:none}
+.card{background:#333;padding:15px;margin:10px;border-radius:8px}
+</style>
+</head>
+<body>
+
+<div id="loginBox" class="box">
+<h2>4Wheels Admin Login</h2>
+<input id="username" placeholder="Login ID likho">
+<input id="password" type="password" placeholder="Password likho">
+<button onclick="login()">LOGIN</button>
+<p id="msg"></p>
+<p style="font-size:12px;color:#aaa">ID: 4wheelsSanu / 4wheelsAnand / 4wheelsShashank</p>
+</div>
+
+<div id="dashboard" class="box">
+<h2>Welcome <span id="userName"></span></h2>
+<p>Login ho gaya!</p>
+<div class="card">
+<h3>Total Cars</h3>
+<p id="carCount">Loading...</p>
+</div>
+<button onclick="logout()">LOGOUT</button>
+</div>
+
+<script>
+async function login(){
+  let u = document.getElementById('username').value.trim();
+  let p = document.getElementById('password').value.trim();
+  let res = await fetch('/api/admin/login', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({username:u, password:p})
+  });
+  let data = await res.json();
+  if(data.success){
+    localStorage.setItem('adminUser', u);
+    document.getElementById('loginBox').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    document.getElementById('userName').innerText = u;
+  } else {
+    document.getElementById('msg').innerText = "Galat ID ya Password!";
+    document.getElementById('msg').style.color='red';
+  }
+}
+function logout(){
+  localStorage.removeItem('adminUser');
+  location.reload();
+}
+if(localStorage.getItem('adminUser')){
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('userName').innerText = localStorage.getItem('adminUser');
+}
+</script>
+</body>
+</html>
